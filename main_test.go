@@ -1,18 +1,20 @@
 package main
-import (
-    "net/http"
-    "net/http/httptest"
-    "testing"
-)
-func TestHealthCheck(t *testing.T) {
-    req, err := http.NewRequest("GET", "/health", nil)
-    if err != nil {
-        t.Fatal(err)
-    }
-    rr := httptest.NewRecorder()
-    handler := http.HandlerFunc(handler)
-    handler.ServeHTTP(rr, req)
-    if status := rr.Code; status != http.StatusOK {
-        t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-    }
+
+import "testing"
+
+func TestStore(t *testing.T) {
+	store := NewStore()
+	
+	store.Set("key1", "val1")
+	val, ok := store.Get("key1")
+	
+	if !ok || val != "val1" {
+		t.Errorf("Expected val1, got %v", val)
+	}
+	
+	store.Delete("key1")
+	_, ok = store.Get("key1")
+	if ok {
+		t.Error("Expected key to be deleted")
+	}
 }
