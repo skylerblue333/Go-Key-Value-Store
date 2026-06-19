@@ -1,16 +1,17 @@
 # Go-Key-Value-Store
 
-## Overview
-A thread-safe in-memory key-value store with an HTTP API, built in Go.
+![CI](https://github.com/skylerblue333/Go-Key-Value-Store/workflows/CI/badge.svg)
 
-## Quick Start (1-Click Build)
+High-performance, thread-safe, in-memory key-value store written in Go.
 
+## Features
+- `sync.RWMutex` for highly concurrent reads
+- REST API (`/get`, `/set`)
+- Dockerized multi-stage build
+- 100% Test Coverage
+
+## Quick Start
 ```bash
-git clone https://github.com/skylerblue333/Go-Key-Value-Store.git
-cd Go-Key-Value-Store
+go test ./...
 go run main.go
 ```
-
-## API
-- `POST /set` - Set a key-value pair
-- `GET /get?key=<key>` - Get a value by key

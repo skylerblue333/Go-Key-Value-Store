@@ -2,74 +2,79 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
+	"time"
 )
 
-type Store struct {
+type Database struct {
 	mu   sync.RWMutex
 	data map[string]string
 }
 
-func NewStore() *Store {
-	return &Store{
-		data: make(map[string]string),
-	}
+func NewDatabase() *Database {
+	return &Database{data: make(map[string]string)}
 }
 
-func (s *Store) Set(key, value string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.data[key] = value
+func (db *Database) Set(key, value string) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	db.data[key] = value
 }
 
-func (s *Store) Get(key string) (string, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	val, ok := s.data[key]
+func (db *Database) Get(key string) (string, bool) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+	val, ok := db.data[key]
 	return val, ok
 }
 
-func (s *Store) Delete(key string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	delete(s.data, key)
-}
+var db = NewDatabase()
 
-type Request struct {
-	Key   string `json:"key"`
-	Value string `json:"value,omitempty"`
-}
-
-func (s *Store) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		key := r.URL.Query().Get("key")
-		if val, ok := s.Get(key); ok {
-			json.NewEncoder(w).Encode(map[string]string{"key": key, "value": val})
-			return
-		}
-		http.Error(w, "Key not found", http.StatusNotFound)
+func handleSet(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	db.Set(req.Key, req.Value)
+	w.WriteHeader(http.StatusCreated)
+}
 
-	if r.Method == http.MethodPost {
-		var req Request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		s.Set(req.Key, req.Value)
-		w.WriteHeader(http.StatusCreated)
+func handleGet(w http.ResponseWriter, r *http.Request) {
+	key := r.URL.Query().Get("key")
+	if key == "" {
+		http.Error(w, "missing key", http.StatusBadRequest)
 		return
 	}
-
-	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	val, ok := db.Get(key)
+	if !ok {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]string{"value": val})
 }
 
 func main() {
-	store := NewStore()
-	http.Handle("/kv", store)
-	log.Println("KV Store listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/set", handleSet)
+	mux.HandleFunc("/get", handleGet)
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"status":"ok"}`)
+	})
+
+	server := &http.Server{
+		Addr:         ":8080",
+		Handler:      mux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
+	log.Println("Server starting on :8080")
+	log.Fatal(server.ListenAndServe())
 }
