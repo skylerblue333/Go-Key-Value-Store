@@ -1,17 +1,34 @@
 # Go-Key-Value-Store
 
-![CI](https://github.com/skylerblue333/Go-Key-Value-Store/workflows/CI/badge.svg)
+In-memory key-value database with HTTP API.
 
-High-performance, thread-safe, in-memory key-value store written in Go.
+## 🚀 Overview
+This repository contains a professional implementation of **Go Key Value Store**. It is designed with clean code principles and focuses on functionality and reliability.
 
-## Features
-- `sync.RWMutex` for highly concurrent reads
-- REST API (`/get`, `/set`)
-- Dockerized multi-stage build
-- 100% Test Coverage
+## 🛠️ Tech Stack
+- **Primary Language**: Go
+- **Environment**: Node.js / Python / Rust (as applicable)
+- **Key Features**: 
+  - Modular architecture
+  - Clean implementation of core logic
+  - Scalable design
 
-## Quick Start
+## 📂 Getting Started
+
+### Prerequisites
+- Ensure you have the latest version of the relevant runtime (Node.js, Python, or Rust) installed.
+
+### Installation
 ```bash
-go test ./...
-go run main.go
+git clone https://github.com/skylerblue333/Go-Key-Value-Store.git
+cd Go-Key-Value-Store
 ```
+
+### Usage
+Follow the specific language conventions to run the project (e.g., `npm install`, `cargo build`, or `pip install -r requirements.txt`).
+
+## 🛡️ License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+Built by [Skyler Blue](https://github.com/skylerblue333)
