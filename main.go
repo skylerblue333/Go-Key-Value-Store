@@ -15,10 +15,10 @@ import (
 )
 
 const (
-	defaultMaxKeys   = 10000
-	maxKeyLength     = 256
-	maxValueLength   = 64 * 1024
-	maxRequestBytes  = 70 * 1024
+	defaultMaxKeys  = 10000
+	maxKeyLength    = 256
+	maxValueLength  = 64 * 1024
+	maxRequestBytes = 70 * 1024
 )
 
 var (
